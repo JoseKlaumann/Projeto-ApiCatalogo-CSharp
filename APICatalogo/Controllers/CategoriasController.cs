@@ -19,17 +19,18 @@ namespace APICatalogo.Controllers
         [HttpGet("produto")]
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
-            return _contex.Categorias.Include(p => p.Produtos).ToList();
+            // return _contex.Categorias.Include(p => p.Produtos).AsNoTracking().ToList();
+            return _contex.Categorias.Include(p => p.Produtos).Where(c => c.CategoriaId <= 5).ToList();
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
-            var categorias = _contex.Categorias.ToList();
+            var categorias = _contex.Categorias.AsNoTracking().ToList();
 
             if (categorias is null)
             {
-                return NotFound("categorias não encontrados!");
+                return NotFound("categorias não encontradas!");
             }
 
             return categorias;
@@ -41,7 +42,7 @@ namespace APICatalogo.Controllers
             var categoria = _contex.Categorias.FirstOrDefault(p => p.CategoriaId == id);
             if (categoria is null)
             {
-                return NotFound("Categoria não encontrado!");
+                return NotFound("Categoria não encontrada!");
             }
             return categoria;
         }
@@ -79,7 +80,7 @@ namespace APICatalogo.Controllers
 
             if (categoria is null)
             {
-                return NotFound("Categoria não localizado!");
+                return NotFound("Categoria não localizada!");
             }
 
             _contex.Categorias.Remove(categoria);
