@@ -2,7 +2,6 @@
 using APICatalogo.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
 
 namespace APICatalogo.Controllers
 {
