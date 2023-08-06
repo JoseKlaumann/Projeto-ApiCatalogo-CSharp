@@ -18,7 +18,7 @@ namespace APICatalogo.Repository
             return _context.Set<T>().AsNoTracking();
         }
 
-        public T getById(Expression<Func<T, bool>> predicate)
+        public T GetById(Expression<Func<T, bool>> predicate)
         {
             return _context.Set<T>().SingleOrDefault(predicate);
         }

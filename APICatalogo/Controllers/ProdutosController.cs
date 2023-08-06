@@ -1,7 +1,6 @@
-﻿using APICatalogo.Context;
-using APICatalogo.Models;
+﻿using APICatalogo.Models;
+using APICatalogo.Repository;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace APICatalogo.Controllers
 {
@@ -9,11 +8,17 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private readonly AppDbContext _contex;
+        private readonly IUnitOfWork _uof;
 
-        public ProdutosController(AppDbContext contex)
+        public ProdutosController(IUnitOfWork uof)
         {
-            _contex = contex;
+            _uof = uof;
+        }
+
+        [HttpGet("menorpreco")]
+        public ActionResult<IEnumerable<Produto>> GetProdutosPreco()
+        {
+            return _uof.ProdutoRepository.GetProdutoPorPreco().ToList();
         }
 
         [HttpGet]
@@ -21,7 +26,7 @@ namespace APICatalogo.Controllers
         {
             try
             {
-                var produtos = _contex.Produtos.Take(10).ToList();
+                var produtos = _uof.ProdutoRepository.Get().ToList();
 
                 if (produtos is null)
                 {
@@ -42,7 +47,7 @@ namespace APICatalogo.Controllers
         {
             try
             {
-                var produto = _contex.Produtos.FirstOrDefault(p => p.ProdutoId == id);
+                var produto = _uof.ProdutoRepository.GetById(p => p.ProdutoId == id);
                 if (produto is null)
                 {
                     return NotFound($"Produto com id = {id} não encontrado!");
@@ -63,8 +68,8 @@ namespace APICatalogo.Controllers
             {
                 return BadRequest("Dados inválidos!");
             }
-            _contex.Produtos.Add(produto);
-            _contex.SaveChanges();
+            _uof.ProdutoRepository.Add(produto);
+            _uof.Commit();
             return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, produto);
         }
 
@@ -76,8 +81,8 @@ namespace APICatalogo.Controllers
                 return BadRequest("Dados inválidos!");
             }
 
-            _contex.Entry(produto).State = EntityState.Modified;
-            _contex.SaveChanges();
+            _uof.ProdutoRepository.Update(produto);
+            _uof.Commit();
 
             return Ok(produto);
         }
@@ -85,15 +90,15 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var produto = _contex.Produtos.FirstOrDefault(p => p.ProdutoId == id);
+            var produto = _uof.ProdutoRepository.GetById(p => p.ProdutoId == id);
 
             if (produto is null)
             {
                 return NotFound($"Produto com id = {id} não localizado!");
             }
 
-            _contex.Produtos.Remove(produto);
-            _contex.SaveChanges();
+            _uof.ProdutoRepository.Delete(produto);
+            _uof.Commit();
 
             return Ok(produto);
         }
