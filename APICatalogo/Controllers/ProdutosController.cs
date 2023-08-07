@@ -1,8 +1,10 @@
 ﻿using APICatalogo.DTOs;
 using APICatalogo.Models;
+using APICatalogo.Pagination;
 using APICatalogo.Repository;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace APICatalogo.Controllers
 {
@@ -20,20 +22,45 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("menorpreco")]
-        public ActionResult<IEnumerable<ProdutoDTO>> GetProdutosPreco()
+        public ActionResult<IEnumerable<ProdutoDTO>> GetProdutosPreco([FromQuery] ProdutosParameters produtosParameters)
         {
-            var produtos = _uof.ProdutoRepository.GetProdutoPorPreco().ToList();
+            var produtos = _uof.ProdutoRepository.GetProdutos(produtosParameters);
+
+            var metadata = new
+            {
+                produtos.TotalCount,
+                produtos.PageSize,
+                produtos.CurrentPage,
+                produtos.TotalPages,
+                produtos.HasNext,
+                produtos.HasPrevious
+            };
+
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+
             var produtosDto = _mapper.Map<List<ProdutoDTO>>(produtos);
 
             return produtosDto;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<ProdutoDTO>> Get()
+        public ActionResult<IEnumerable<ProdutoDTO>> Get([FromQuery] ProdutosParameters produtosParameters)
         {
             try
             {
-                var produtos = _uof.ProdutoRepository.Get().ToList();
+                var produtos = _uof.ProdutoRepository.GetProdutos(produtosParameters);
+
+                var metadata = new
+                {
+                    produtos.TotalCount,
+                    produtos.PageSize,
+                    produtos.CurrentPage,
+                    produtos.TotalPages,
+                    produtos.HasNext,
+                    produtos.HasPrevious
+                };
+
+                Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
 
                 if (produtos is null)
                 {
