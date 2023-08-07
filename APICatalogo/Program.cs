@@ -84,6 +84,8 @@ var mappingConfig = new MapperConfiguration(mc =>
 IMapper mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -102,6 +104,10 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseCors(opt => opt.AllowAnyHeader());
+app.UseCors(opt => opt.AllowAnyMethod());
+app.UseCors(opt => opt.AllowAnyOrigin());
 
 app.MapControllers();
 
