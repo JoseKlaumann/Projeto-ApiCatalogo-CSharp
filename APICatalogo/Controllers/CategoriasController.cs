@@ -1,12 +1,10 @@
 ﻿using APICatalogo.DTOs;
 using APICatalogo.Models;
-using APICatalogo.Pagination;
 using APICatalogo.Repository;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace APICatalogo.Controllers
 {
@@ -42,23 +40,11 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriaParameters)
+        public ActionResult<IEnumerable<CategoriaDTO>> Get()
         {
             try
             {
-                var categorias = _uof.CategoriaRepository.GetCategorias(categoriaParameters);
-
-                var metadata = new
-                {
-                    categorias.TotalCount,
-                    categorias.PageSize,
-                    categorias.CurrentPage,
-                    categorias.TotalPages,
-                    categorias.HasNext,
-                    categorias.HasPrevious
-                };
-
-                Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+                var categorias = _uof.CategoriaRepository.Get().ToList();
 
                 if (categorias is null)
                 {
@@ -66,10 +52,12 @@ namespace APICatalogo.Controllers
                 }
                 var categoriasDto = _mapper.Map<List<CategoriaDTO>>(categorias);
 
+                // throw new Exception();
                 return categoriasDto;
             }
             catch (Exception)
             {
+                // return BadRequest();
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     "Ocorreu um problema ao tratar a sua solicitação.");
             }

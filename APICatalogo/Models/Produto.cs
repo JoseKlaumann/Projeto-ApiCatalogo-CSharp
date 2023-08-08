@@ -12,11 +12,11 @@ public class Produto
 
     [Required]
     [StringLength(80)]
-    public string? Nome { get; set; }
+    public string Nome { get; set; }
 
     [Required]
     [StringLength(300)]
-    public string? Descricao { get; set; }
+    public string Descricao { get; set; }
 
     [Required]
     [Column(TypeName = "decimal(10, 2)")]
@@ -24,11 +24,11 @@ public class Produto
 
     [Required]
     [StringLength(300)]
-    public string? ImagemUrl { get; set; }
+    public string ImagemUrl { get; set; }
     public float Estoque { get; set; }
     public DateTime DataCadastro { get; set; }
     public int CategoriaId { get; set; }
 
     [JsonIgnore]
-    public Categoria? Categorias { get; set; }
+    public Categoria Categorias { get; set; }
 }
