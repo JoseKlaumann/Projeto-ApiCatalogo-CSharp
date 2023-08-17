@@ -63,6 +63,40 @@ namespace APICatalogo.Controllers
             }
         }
 
+        [HttpGet("paginacao")]
+        public ActionResult<IEnumerable<CategoriaDTO>> GetPaginacao(int pag=1, int reg=5)
+        {
+            try
+            {
+                if(reg > 10)
+                {
+                    reg = 5;
+                }
+
+                var categorias = _uof.CategoriaRepository.LocalizaPagina<Categoria>(pag, reg).ToList();
+
+                var totalDeRegistros = _uof.CategoriaRepository.GetTotalRegistros();
+                var numeroPaginas = ((int) Math.Ceiling((double) totalDeRegistros / reg));
+
+                Response.Headers["X-Total-Registros"] = totalDeRegistros.ToString();
+                Response.Headers["X-Numero-Paginas"] = numeroPaginas.ToString();
+
+                if (categorias is null)
+                {
+                    return NotFound("Categorias não encontradas!");
+                }
+                var categoriasDto = _mapper.Map<List<CategoriaDTO>>(categorias);
+
+                return categoriasDto;
+            }
+            catch (Exception)
+            {
+                // return BadRequest();
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Ocorreu um problema ao tratar a sua solicitação.");
+            }
+        }
+
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<CategoriaDTO> Get(int id)
         {

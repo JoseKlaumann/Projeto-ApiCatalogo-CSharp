@@ -84,7 +84,13 @@ var mappingConfig = new MapperConfiguration(mc =>
 IMapper mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("EnableCORS", builder =>
+    {
+        builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().Build();
+    });
+});
 
 var app = builder.Build();
 
@@ -105,9 +111,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseCors(opt => opt.AllowAnyHeader());
-app.UseCors(opt => opt.AllowAnyMethod());
-app.UseCors(opt => opt.AllowAnyOrigin());
+app.UseCors("EnableCORS");
 
 app.MapControllers();
 
